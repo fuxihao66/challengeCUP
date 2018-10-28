@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/">
+        <file>vshader/vshader.glsl</file>
+    </qresource>
+    <qresource prefix="/">
+        <file>fshader/singleColor.glsl</file>
+    </qresource>
+</RCC>

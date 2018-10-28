@@ -1,9 +1,9 @@
 cmake_minimum_required( VERSION 2.8 )
 set( CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}" ${CMAKE_MODULE_PATH} )
 
-project( kinectHost )
-add_executable( kinectHost kinect2_grabber.h main.cpp )
-set_property( DIRECTORY PROPERTY VS_STARTUP_PROJECT "kinectHost" )
+project( sample )
+add_executable( sample kinect2_grabber.h main.cpp HostSocket.cpp HostSocket.h)
+set_property( DIRECTORY PROPERTY VS_STARTUP_PROJECT "sample" )
 
 # Find Packages
 find_package( PCL 1.8 REQUIRED )
@@ -22,10 +22,6 @@ if( PCL_FOUND AND KinectSDK2_FOUND )
   link_directories( ${KinectSDK2_LIBRARY_DIRS} )
 
   # Additional Dependencies
-  target_link_libraries( kinectHost ${PCL_LIBRARIES} )
-  target_link_libraries( kinectHost ${KinectSDK2_LIBRARIES} )
+  target_link_libraries( sample ${PCL_LIBRARIES} )
+  target_link_libraries( sample ${KinectSDK2_LIBRARIES} )
 endif()
-
-
-
-

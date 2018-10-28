@@ -5,6 +5,9 @@
 #define KINECT2_GRABBER
 
 #define NOMINMAX
+#include <boost/asio.hpp>
+#include <winsock2.h> 
+#pragma comment(lib,"ws2_32.lib")  
 #include <Windows.h>
 #include <Kinect.h>
 
@@ -12,6 +15,97 @@
 #include <pcl/io/grabber.h>
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
+
+#include <map>
+#include <string>
+namespace socketHost {
+	class connectionInfo {
+	public:
+		connectionInfo() {
+			nAddrLen = sizeof(remoteAddr);
+		}
+		~connectionInfo() {
+
+		}
+		SOCKET serSocket;
+		sockaddr_in remoteAddr;
+		int nAddrLen;
+	};
+	class HostSock {
+	public:
+		connectionInfo cf;
+		HostSock();
+		~HostSock() {}
+		boost::signals2::connection registerCallback(const boost::function<void()> & callback);
+		
+		void start();
+
+	protected:
+		boost::signals2::signal<void()> * cloudSignal;
+	private:
+		void startHost();
+	};
+
+	HostSock::HostSock() 
+	{
+
+		typedef boost::signals2::signal<void()> Signal;
+		cloudSignal = new Signal();
+	}
+
+	void HostSock::startHost() {        // 在这里面调用signal
+
+		WSADATA wsaData;
+		WORD sockVersion = MAKEWORD(2, 2);
+		if (WSAStartup(sockVersion, &wsaData) != 0)
+		{
+			return;
+		}
+
+		cf.serSocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+		if (cf.serSocket == INVALID_SOCKET)
+		{
+			printf("socket error !");
+			return;
+		}
+		sockaddr_in serAddr;
+		serAddr.sin_family = AF_INET;
+		serAddr.sin_port = htons(8888);
+		serAddr.sin_addr.S_un.S_addr = INADDR_ANY;
+		if (bind(cf.serSocket, (sockaddr *)&serAddr, sizeof(serAddr)) == SOCKET_ERROR)
+		{
+			printf("bind error !");
+			closesocket(cf.serSocket);
+			return ;
+		}
+
+		while (true)
+		{
+
+			if (cloudSignal->num_slots() > 0) {
+				
+				cloudSignal->operator()();
+			}
+
+		}
+
+		std::cout << "has closed" << std::endl;
+		closesocket(cf.serSocket);
+		WSACleanup();
+
+	}
+
+	void HostSock::start() {
+		
+		boost::thread(&HostSock::startHost, this);
+	}
+
+	boost::signals2::connection HostSock::registerCallback(const boost::function<void()> & callback)
+	{
+		boost::signals2::connection ret = cloudSignal->connect(callback);
+		return (ret);
+	}
+}
 
 
 namespace pcl

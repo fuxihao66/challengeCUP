@@ -9,7 +9,7 @@
 #include <pcl/visualization/pcl_visualizer.h>
 #include <pcl/io/pcd_io.h>
 #include <boost/asio.hpp>
-
+#include "transform.h"
 typedef pcl::PointXYZRGBA PointType;
 
 
@@ -32,6 +32,11 @@ CopyPointCloudToBuffers(pcl::PointCloud<pcl::PointXYZRGBA>::ConstPtr cloud, Poin
 	const pcl::PointXYZ  bounds_max(0.9, 3.0, 3.3);
 
 	size_t j = 0;
+	float oriToThisZ;
+	float oriToThisX;
+	float theta;
+	readConfig("transform.xml", oriToThisX, oriToThisZ, theta);
+	theta = theta / 180 * 3.141592653;
 	for (size_t i = 0; i < nr_points; ++i)
 	{
 
@@ -57,13 +62,16 @@ CopyPointCloudToBuffers(pcl::PointCloud<pcl::PointXYZRGBA>::ConstPtr cloud, Poin
 		/*
 		在这里做矩阵变换
 		*/
+		float new_x = -sin(theta)*point.z + cos(theta)*point.x + oriToThisX;
+		float new_z = cos(theta)*point.z + sin(theta)*point.x + oriToThisZ;
+
 
 
 		const int conversion_factor = 500; 
 		
-		cloud_buffers.points[j * 6 + 0] = static_cast<short> (point.x*conversion_factor);         // float to short   
+		cloud_buffers.points[j * 6 + 0] = static_cast<short> (new_x*conversion_factor);         // float to short   
 		cloud_buffers.points[j * 6 + 1] = static_cast<short> (point.y*conversion_factor);
-		cloud_buffers.points[j * 6 + 2] = static_cast<short> (point.z*conversion_factor);
+		cloud_buffers.points[j * 6 + 2] = static_cast<short> (new_z*conversion_factor);
 		cloud_buffers.points[j * 6 + 3] = static_cast<short> (point.r);
 		cloud_buffers.points[j * 6 + 4] = static_cast<short> (point.g);
 		cloud_buffers.points[j * 6 + 5] = static_cast<short> (point.b);

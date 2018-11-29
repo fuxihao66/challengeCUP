@@ -2,21 +2,34 @@
 #define CLIENT_H
 #include <winsock2.h> 
 #include <pcl/io/boost.h>
+#include<pcl/point_cloud.h>
+#include<pcl/point_types.h>
 #include <QWidget>
+#include <string>
+#include <vector>
+#include "readConfig.h"
 #pragma comment(lib,"ws2_32.lib")  
+
+typedef pcl::PointXYZRGBA PointType;
 class Client : public QWidget
 {
 	Q_OBJECT
 private:
 	void connectToHost();
+	std::vector<std::string> ips;
+	unsigned int numHost;
+	SOCKET sclient;
+	sockaddr_in sin;
+	int len;
+	pcl::PointCloud<PointType>::Ptr pointCloudRecved;
+
+	void initVariable(std::string ip, int port);
 public:
 	Client();
 	~Client();
 	boost::signals2::connection registerCallback(const boost::function<void()> & callback);
 	void start();
-	SOCKET sclient;
-	sockaddr_in sin;
-	int len;
+	pcl::PointCloud<PointType>::ConstPtr getDataRecved();
 protected:
 	boost::signals2::signal<void()> * cloudSignal;
 };

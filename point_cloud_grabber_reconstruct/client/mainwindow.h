@@ -51,6 +51,8 @@ private:
 	pcl::PointCloud<PointType>::Ptr cloud;
 	pcl::PointCloud<PointType>::ConstPtr cloudRev;
 
+	int numOfKinect = 3;
+
 	boost::mutex mutex;
 	boost::signals2::signal<void(const pcl::PointCloud<PointType>::ConstPtr&)> saveSignal;
 };

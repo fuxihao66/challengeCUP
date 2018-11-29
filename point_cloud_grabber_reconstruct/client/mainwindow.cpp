@@ -1,5 +1,5 @@
 #include "mainwindow.h"
-#include "build\ui_mainwindow.h"
+#include "ui_mainwindow.h"
 #include <pcl/visualization/pcl_visualizer.h>
 #include <pcl/io/pcd_io.h>
 
@@ -17,7 +17,7 @@ MainWindow::MainWindow(QWidget *parent) :
 		[this](const pcl::PointCloud<PointType>::ConstPtr& ptr) {
 		this->mutex.unlock();
 		boost::mutex::scoped_lock lock(this->mutex);
-		pcl::io::savePCDFile("Data/resultFile.pcd", *cloud);
+		pcl::io::savePCDFile("resultFile.pcd", *cloud);
 		label->setText("Save successfully");
 	};
 	
@@ -27,71 +27,77 @@ MainWindow::MainWindow(QWidget *parent) :
 
 		std::cout << "sync start" << std::endl;
 
-		const char * sendData = "来自客户端的数据包.\n";
-		/*  第一次请求  获取总数据包长度  */
-		sendto(client->sclient, sendData, strlen(sendData), 0, (sockaddr *)&(client->sin), client->len);
+		//for (size_t i = 0; i < numOfKinect; i++) {
 
-		char bufferSizeRaw[255];
-		unsigned int bufferSize;
-		int ret = recvfrom(client->sclient, bufferSizeRaw, 255, 0, (sockaddr *)&(client->sin), &client->len);
-		if (ret > 0) {
-			bufferSize = bytesToInt(bufferSizeRaw);
-			std::cout << "total size is " << bufferSize << std::endl;
-		}
+		//	const char * sendData = "来自客户端的数据包.\n";
+		//	/*  第一次请求  获取总数据包长度  */
+		//	sendto(client->sclient, sendData, strlen(sendData), 0, (sockaddr *)&(client->sin), client->len);
 
-		pcl::PointCloud<PointType>::Ptr cloudTemp(new pcl::PointCloud<PointType>);
-		cloudTemp->width = bufferSize / (12);  // 6*sizeof(short)
-		cloudTemp->height = 1;
-		cloudTemp->points.resize(cloudTemp->width*cloudTemp->height);
+		//	char bufferSizeRaw[255];
+		//	unsigned int bufferSize;
+		//	int ret = recvfrom(client->sclient, bufferSizeRaw, 255, 0, (sockaddr *)&(client->sin), &client->len);
+		//	if (ret > 0) {
+		//		bufferSize = bytesToInt(bufferSizeRaw);
+		//		std::cout << "total size is " << bufferSize << std::endl;
+		//	}
 
-		/* 第二次请求  获取所有数据包 */
-		sendto(client->sclient, sendData, strlen(sendData), 0, (sockaddr *)&(client->sin), client->len);
+		//	pcl::PointCloud<PointType>::Ptr cloudTemp(new pcl::PointCloud<PointType>);
+		//	cloudTemp->width = bufferSize / (12);  // 6*sizeof(short)
+		//	cloudTemp->height = 1;
+		//	cloudTemp->points.resize(cloudTemp->width*cloudTemp->height);
 
-		char recvRaw[60010];
-		short recvData[32020];
-		//short * recvData = new short[bufferSize/2];
-		unsigned int leftBytes = bufferSize;
-		
-		unsigned int headPointer = 0;
-		unsigned int offset = 0;
+		//	/* 第二次请求  获取所有数据包 */
+		//	sendto(client->sclient, sendData, strlen(sendData), 0, (sockaddr *)&(client->sin), client->len);
+
+		//	char recvRaw[60010];
+		//	short recvData[32020];
+		//	//short * recvData = new short[bufferSize/2];
+		//	unsigned int leftBytes = bufferSize;
+
+		//	unsigned int headPointer = 0;
+		//	unsigned int offset = 0;
 
 
-		/* 增加接收缓冲区的大小 防止丢包*/
-		/*  TODO: 需要增加timeout*/
-		int recvBufSize = 1300000;
-		int iRet = setsockopt(client->sclient,
-			SOL_SOCKET,
-			SO_RCVBUF,
-			(const char *)&recvBufSize,
-			sizeof(recvBufSize));
-		while (leftBytes > 0) {
-			int ret = recvfrom(client->sclient, recvRaw, 60000, 0, (sockaddr *)&(client->sin), &client->len);
-			
-			memcpy(recvData, recvRaw, ret);
-			leftBytes -= ret;
-			offset += (ret / 2);
+		//	/* 增加接收缓冲区的大小 防止丢包*/
+		//	/*  TODO: 需要增加timeout*/
+		//	int recvBufSize = 2000000;
+		//	int iRet = setsockopt(client->sclient,
+		//		SOL_SOCKET,
+		//		SO_RCVBUF,
+		//		(const char *)&recvBufSize,
+		//		sizeof(recvBufSize));
+		//	while (leftBytes > 0) {
+		//		int ret = recvfrom(client->sclient, recvRaw, 60000, 0, (sockaddr *)&(client->sin), &client->len);
 
-			int numPoints = ret / (12);
-			std::cout << "ret size is " << ret << std::endl;
+		//		memcpy(recvData, recvRaw, ret);
+		//		leftBytes -= ret;
+		//		offset += (ret / 2);
 
-			for (size_t i = 0; i < numPoints; i++) {
-				cloudTemp->points[headPointer].x = recvData[i * 6 + 0] / 500.0;
-				cloudTemp->points[headPointer].y = recvData[i * 6 + 1] / 500.0;
-				cloudTemp->points[headPointer].z = recvData[i * 6 + 2] / 500.0;
-				cloudTemp->points[headPointer].r = recvData[i * 6 + 3];
-				cloudTemp->points[headPointer].g = recvData[i * 6 + 4];
-				cloudTemp->points[headPointer].b = recvData[i * 6 + 5];
-				headPointer++;
-			}
+		//		int numPoints = ret / (12);
+		//		std::cout << "ret size is " << ret << std::endl;
 
-			
-			//std::cout << "leftBytes is " << leftBytes << std::endl;
-		}
+		//		for (size_t i = 0; i < numPoints; i++) {
+		//			cloudTemp->points[headPointer].x = recvData[i * 6 + 0] / 500.0;
+		//			cloudTemp->points[headPointer].y = recvData[i * 6 + 1] / 500.0;
+		//			cloudTemp->points[headPointer].z = recvData[i * 6 + 2] / 500.0;
+		//			cloudTemp->points[headPointer].r = recvData[i * 6 + 3];
+		//			cloudTemp->points[headPointer].g = recvData[i * 6 + 4];
+		//			cloudTemp->points[headPointer].b = recvData[i * 6 + 5];
+		//			headPointer++;
+		//		}
 
+		//	}
+
+		//	
+		//}
 
 		std::cout << "one phase ended " << std::endl;
-		cloudRev = cloudTemp->makeShared();
-		std::cout << cloudRev->width;
+		cloudRev = client->getDataRecved()->makeShared();    // makeshared????????
+
+		std::cout << "cloud reveived. size is :" << cloudRev->width << std::endl;
+		
+
+		
 	};
 
 	saveSignal.connect(saveFunction);

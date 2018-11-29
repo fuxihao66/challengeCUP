@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 基准坐标的方向 基准坐标的原点 -->
+<root>
+    <OriginDistance>   <!-- 基准点到当前坐标系的向量 单位m-->
+        <z>0.5</z>
+        <x>0.5</x>
+    </OriginDistance>
+    
+    <Theta>60</Theta>  <!-- 坐标轴之间的角度 以基准坐标为准 逆时针负 -->
+</root>

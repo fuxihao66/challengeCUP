@@ -5,17 +5,26 @@
 #include <vector>
 namespace tx = tinyxml2;
 
-void readConfig(std::string fileName, float& x, float& z, float& theta) {
+void readConfig(std::string fileName, double matrix[][3], double vector[3]) {
 	tx::XMLDocument doc;
 	doc.LoadFile(fileName.c_str());
 
 	tx::XMLElement * root = doc.FirstChildElement("root");
 
-	const char* th = root->FirstChildElement("Theta")->GetText();
-	theta = atof(th);
+	tx::XMLElement * matrixNode = root->FirstChildElement("matrix");
+	tx::XMLElement * mElement = matrixNode->FirstChildElement("element");
+	for (size_t i = 0; i < 3; i++) {
+		for (size_t j = 0; j < 3; j++) {
+			matrix[i][j] = atof(mElement->GetText());
+			mElement = mElement->NextSiblingElement;
+		}
+	}
 
-	tx::XMLElement* vectorNode = root->FirstChildElement("OriginDistance");
 
-	z = atof(vectorNode->FirstChildElement("z")->GetText());
-	x = atof(vectorNode->FirstChildElement("x")->GetText());
+	tx::XMLElement* vectorNode = root->FirstChildElement("vector");
+	tx::XMLElement * vElement = matrixNode->FirstChildElement("element");
+	for (size_t i = 0; i < 3; i++) {
+		vector[i] = atof(vElement->GetText());
+		vElement = vElement->NextSiblingElement;
+	}
 }

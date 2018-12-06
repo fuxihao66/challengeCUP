@@ -2,7 +2,7 @@ cmake_minimum_required( VERSION 2.8 )
 set( CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}" ${CMAKE_MODULE_PATH} )
 
 project( sample )
-add_executable( sample kinect2_grabber.h main.cpp HostSocket.cpp HostSocket.h transform.h tinyxml2.h tinyxml2.cpp)
+add_executable( sample kinect2_grabber.h main.cpp HostSocket.cpp HostSocket.h tinyxml2.cpp tinyxml2.h transform.h)
 set_property( DIRECTORY PROPERTY VS_STARTUP_PROJECT "sample" )
 
 # Find Packages

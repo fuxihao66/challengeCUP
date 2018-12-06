@@ -20,8 +20,16 @@ struct PointCloudBuffers
 	//std::vector<unsigned char> rgb;
 };
 
-void
-CopyPointCloudToBuffers(pcl::PointCloud<pcl::PointXYZRGBA>::ConstPtr cloud, PointCloudBuffers& cloud_buffers)
+float doTransform(char key, double matrix[][3], double vector[3], const pcl::PointXYZRGBA& point) {
+	int rowIndex = (key - 'x');
+	float result = 0.0;
+	
+	result = matrix[rowIndex][0] * point.x + matrix[rowIndex][1] * point.y + matrix[rowIndex][2] * point.z + vector[rowIndex];
+	
+	return result;
+}
+
+void CopyPointCloudToBuffers(pcl::PointCloud<pcl::PointXYZRGBA>::ConstPtr cloud, PointCloudBuffers& cloud_buffers)
 {
 	const size_t nr_points = cloud->points.size();
 
@@ -32,11 +40,9 @@ CopyPointCloudToBuffers(pcl::PointCloud<pcl::PointXYZRGBA>::ConstPtr cloud, Poin
 	const pcl::PointXYZ  bounds_max(0.9, 3.0, 3.3);
 
 	size_t j = 0;
-	float oriToThisZ;
-	float oriToThisX;
-	float theta;
-	readConfig("transform.xml", oriToThisX, oriToThisZ, theta);
-	theta = theta / 180 * 3.141592653;
+	double matrix[3][3];
+	double vector[3];
+	readConfig("transform.xml", matrix, vector);
 	for (size_t i = 0; i < nr_points; ++i)
 	{
 
@@ -45,47 +51,27 @@ CopyPointCloudToBuffers(pcl::PointCloud<pcl::PointXYZRGBA>::ConstPtr cloud, Poin
 		if (point.x == 0.0 && point.y == 0.0 && point.z == 0.0)
 			continue;
 
-		/*if (!pcl_isfinite(point.x) ||
-			!pcl_isfinite(point.y) ||
-			!pcl_isfinite(point.z))
-			continue;
-
-		if (point.x < bounds_min.x ||
-			point.y < bounds_min.y ||
-			point.z < bounds_min.z ||
-			point.x > bounds_max.x ||
-			point.y > bounds_max.y ||
-			point.z > bounds_max.z)
-			continue;*/
-
-
 		/*
 		在这里做矩阵变换
 		*/
-		float new_x = -sin(theta)*point.z + cos(theta)*point.x + oriToThisX;
-		float new_z = cos(theta)*point.z + sin(theta)*point.x + oriToThisZ;
-
+		float new_x = doTransform('x', matrix, vector, point);
+		float new_y = doTransform('y', matrix, vector, point);
+		float new_z = doTransform('z', matrix, vector, point);
 
 
 		const int conversion_factor = 500; 
 		
 		cloud_buffers.points[j * 6 + 0] = static_cast<short> (new_x*conversion_factor);         // float to short   
-		cloud_buffers.points[j * 6 + 1] = static_cast<short> (point.y*conversion_factor);
+		cloud_buffers.points[j * 6 + 1] = static_cast<short> (new_y*conversion_factor);
 		cloud_buffers.points[j * 6 + 2] = static_cast<short> (new_z*conversion_factor);
 		cloud_buffers.points[j * 6 + 3] = static_cast<short> (point.r);
 		cloud_buffers.points[j * 6 + 4] = static_cast<short> (point.g);
 		cloud_buffers.points[j * 6 + 5] = static_cast<short> (point.b);
 
-		
-		/*cloud_buffers.rgb[j * 3 + 0] = point.r;
-		cloud_buffers.rgb[j * 3 + 1] = point.g;
-		cloud_buffers.rgb[j * 3 + 2] = point.b;*/
-
 		j++;
 	}
 
 	cloud_buffers.points.resize(j * 6);
-	//cloud_buffers.rgb.resize(j * 3);
 }
 
 void intToByte(int i, char * stream, int size = 4)

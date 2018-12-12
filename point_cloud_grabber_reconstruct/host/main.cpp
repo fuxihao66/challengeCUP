@@ -42,7 +42,11 @@ void CopyPointCloudToBuffers(pcl::PointCloud<pcl::PointXYZRGBA>::ConstPtr cloud,
 	size_t j = 0;
 	double matrix[3][3];
 	double vector[3];
+
 	readConfig("transform.xml", matrix, vector);
+
+
+	printf("配置读取成功");
 	for (size_t i = 0; i < nr_points; ++i)
 	{
 
@@ -128,7 +132,7 @@ int main( int argc, char* argv[] )
 			PointCloudBuffers::Ptr buffers_to_send = PointCloudBuffers::Ptr(new PointCloudBuffers);
 			CopyPointCloudToBuffers(cloud, *buffers_to_send);
 			unsigned int n_points = buffers_to_send->points.size() / 6;
-
+			printf("buffer成功");
 
 			/*发送数据包总长度*/
 			char sendBufferSize[255];

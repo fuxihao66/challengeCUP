@@ -2,12 +2,15 @@ cmake_minimum_required( VERSION 2.8 )
 set( CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}" ${CMAKE_MODULE_PATH} )
 
 project( recognition )
-add_executable( recognition kinect2_grabber.h main.cpp myMath.h tinyxml2.cpp tinyxml2.h)
+add_executable( recognition main.cpp)
 set_property( DIRECTORY PROPERTY VS_STARTUP_PROJECT "recognition" )
 
 # Find Packages
 find_package( PCL 1.8 REQUIRED )
 find_package( KinectSDK2 REQUIRED )
+FIND_PACKAGE(OpenCV REQUIRED)
+
+
 
 if( PCL_FOUND AND KinectSDK2_FOUND )
   # Additional Include Directories
@@ -24,4 +27,5 @@ if( PCL_FOUND AND KinectSDK2_FOUND )
   # Additional Dependencies
   target_link_libraries( recognition ${PCL_LIBRARIES} )
   target_link_libraries( recognition ${KinectSDK2_LIBRARIES} )
+  target_link_libraries( recognition ${OpenCV_LIBS})
 endif()

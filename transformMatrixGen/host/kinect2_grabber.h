@@ -5,9 +5,9 @@
 #define KINECT2_GRABBER
 
 #define NOMINMAX
-#include <boost/asio.hpp>
-#include <winsock2.h> 
-#pragma comment(lib,"ws2_32.lib")  
+
+//#include <winsock2.h> 
+//#pragma comment(lib,"ws2_32.lib")  
 #include <Windows.h>
 #include <Kinect.h>
 #include "myMath.h"

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- numcloud, operate parameter -->
+<root>
+   <numClouds>20</numClouds>
+  <CuttingBox>
+    <minX>-0.2</minX>
+    <maxX>0.2</maxX>
+    <minY>-0.6</minY>
+    <maxY>0.6</maxY>
+    <minZ>-2.0</minZ>
+    <maxZ>2.0</maxZ>
+  </CuttingBox>
+  <statisticalRemovalStd>0.5</statisticalRemovalStd>;
+  <voxelFilterLeafSize>0.005</voxelFilterLeafSize>;
+  <resampleRadius>0.02</resampleRadius>;
+</root>
